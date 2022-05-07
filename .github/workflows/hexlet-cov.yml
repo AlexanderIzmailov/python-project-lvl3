@@ -1,0 +1,27 @@
+name: hexlet-cov
+
+on:
+  - push
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup-python
+        uses: actions/setup-python@v2
+      - name: install1
+        run:  pip install poetry
+      - name: install2
+        run: make install
+      # - name: run-test-cov
+      #   run:  make test-cov
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v2.7.4
+        env:
+          CC_TEST_REPORTER_ID: 42211f3dd33787caeeb908e4655c42dc1a6ea5bfeb2f5233a1d5fbb9ab72b91c
+        with:
+          coverageCommand: make test-cov
+          debug: true
