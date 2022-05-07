@@ -12,7 +12,7 @@ def change_name(name):
     return result + ".html"
 
 
-def page_loader(url, path):
+def page_loader(url, path=os.getcwd()):
     r = requests.get(url)
     file_name = change_name(url)
 
@@ -23,4 +23,4 @@ def page_loader(url, path):
 
     print(output_file)
 
-    return output_file
+    return r.text
