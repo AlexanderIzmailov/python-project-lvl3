@@ -3,7 +3,7 @@ import os
 import argparse
 
 parser = argparse.ArgumentParser(
-    description='some description',
+    description='Downloading internet pages',
     usage="page-loader [options] <url>")
 parser.add_argument("url", help=argparse.SUPPRESS)
 parser.add_argument(
