@@ -1,4 +1,4 @@
-from page_loader.page_loader_logic import page_loader
+from page_loader.page_loader_logic import page_loader, change_name
 # import requests
 import requests_mock
 
@@ -11,3 +11,9 @@ def test_page_loader():
 
         result = page_loader("http://test.com")
         assert result == correct
+
+
+def test_change_name():
+    url = "https://ru.hexlet.io/courses"
+    result = change_name(url)
+    assert result == "ru-hexlet-io-courses.html"
