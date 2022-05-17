@@ -8,3 +8,5 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/48c7ffe7587040a49b16/test_coverage)](https://codeclimate.com/github/AlexanderIzmailov/python-project-lvl3/test_coverage)
 
 asciinema for page-loader: https://asciinema.org/a/1vxKkAaeDUI7FhebpiQpXwyWf
+
+asciinema for page-loader (images): https://asciinema.org/a/AojocLLTsY60lkvbfwrf1Bkge
