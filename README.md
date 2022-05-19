@@ -10,3 +10,4 @@
 asciinema for page-loader: https://asciinema.org/a/1vxKkAaeDUI7FhebpiQpXwyWf
 
 asciinema for page-loader (images): https://asciinema.org/a/AojocLLTsY60lkvbfwrf1Bkge
+asciinema for page-loader (links and scripts): https://asciinema.org/a/TzSJPuDNJ77mtV46be2w6aK4f

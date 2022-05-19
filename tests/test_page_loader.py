@@ -13,7 +13,21 @@ def test_page_loader():
             assert result == correct
 
 
-def test_page_loader3():
+# def test_page_loader2():
+#     with requests_mock.Mocker() as m:
+#         correct = open("tests/fixtures/with_images.html").read()
+#         m.get("https://with_images.ru", text=correct)
+#         m.get("https://with_images.ru/test_jpg.jpg", text="image")
+        
+#         with tempfile.TemporaryDirectory() as tmpdir:
+#             result = page_loader("https://with_images.ru", tmpdir)
+#             image = os.path.join(tmpdir, "with_images-ru_files", "with_images-ru-test_jpg.jpg")
+#             read_image = open(image).read()
+#             assert read_image == "image"
+#             assert result != correct
+
+
+def test_page_loader2():
     with requests_mock.Mocker() as m:
         correct = open("tests/fixtures/with_images.html").read()
         m.get("https://with_images.ru", text=correct)
@@ -21,7 +35,36 @@ def test_page_loader3():
         
         with tempfile.TemporaryDirectory() as tmpdir:
             result = page_loader("https://with_images.ru", tmpdir)
-            image = os.path.join(tmpdir, "with_images-ru_files", "with_images-ru-test_jpg.jpg")
+            image = os.path.join(tmpdir, "with-images-ru_files", "with-images-ru-test-jpg.jpg")
             read_image = open(image).read()
             assert read_image == "image"
+            assert result != correct
+
+
+def test_page_loader3():
+    with requests_mock.Mocker() as m:
+        correct = open("tests/fixtures/link_script_test.html").read()
+        m.get("https://link_script_test.ru", text=correct)
+        m.get("https://cdn2.hexlet.io/assets/menu.css", text="css1")
+        m.get("https://link_script_test.ru/assets/application.css", text="css2")
+        m.get("https://link_script_test.ru/courses", text="html")
+        m.get("https://link_script_test.ru/assets/professions/nodejs.png", text="image")
+        m.get("https://cdn2.hexlet.io/assets/professions/nodejs.png", text="image_double")
+        m.get("https://js.stripe.com/v3/", text="script1")
+        m.get("https://link_script_test.ru/packs/js/runtime.js", text="script2")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            result = page_loader("https://link_script_test.ru", tmpdir)
+            
+            css = os.path.join(tmpdir, "link-script-test-ru_files", "link-script-test-ru-assets-application.css")
+            html = os.path.join(tmpdir, "link-script-test-ru_files", "link-script-test-ru-courses.html")
+            script = os.path.join(tmpdir, "link-script-test-ru_files", "link-script-test-ru-packs-js-runtime.js")
+
+            css_read = open(css).read()
+            html_read = open(html).read()
+            script_read = open(script).read()
+
+            assert css_read == "css2"
+            assert html_read == "html"
+            assert script_read == "script2"
             assert result != correct
