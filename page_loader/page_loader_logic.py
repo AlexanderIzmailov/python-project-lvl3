@@ -4,6 +4,17 @@ import requests
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
+import logging
+
+logger = logging.getLogger("page_loader_logic")
+logger.setLevel(logging.INFO)
+
+f = logging.Formatter("%(levelname)s | %(funcName)s | %(message)s")  # noqa: E501
+sh = logging.StreamHandler()
+sh.setFormatter(f)
+
+logger.addHandler(sh)
+
 
 def change_name(url):
     url_parse = urlparse(url)
@@ -27,25 +38,31 @@ def take_files_urls(file_url, domain, files_dir_name, files_dir_path):
     netloc = file_url_parse.netloc
 
     if netloc == "":
+        logger.debug("url without netloc: {}".format(file_url))
         domain_parse = urlparse(domain)
         netloc = domain_parse.netloc
         file_url = urljoin(domain, file_url)
+        logger.debug("url after urljoin: {}".format(file_url))
+
     file_path = file_url_parse.path
     # file_path = file_url_parse.path + "" if file_url_parse.query == "" else "?" + file_url_parse.query  # noqa: E501
     file_path_clear = re.search(r".*(?=\.|\/$)|^.*", file_path)    # noqa: W605
     file_path_clear = file_path_clear[0] if file_path_clear[0][0] == "/" else "/" + file_path_clear[0]  # noqa: E501
+    logger.debug("file_path_clear: {}".format(file_path_clear))
 
     file_path_ext = re.search(r"\.\w+$", file_path)    # noqa: W605
     if file_path_ext:
         file_path_ext = file_path_ext[0]
     else:
         file_path_ext = ".html"
+    logger.debug("file_path_ext: {}".format(file_path_ext))
 
     file_name = re.sub(r"[^a-zA-Z0-9]", "-", netloc + file_path_clear)   # noqa: W605, E501
     file_url_for_html = os.path.join(files_dir_name, file_name + file_path_ext)  # noqa: E501
 
     name_with_ext = file_name + file_path_ext
     full_file_path = os.path.join(files_dir_path, files_dir_name, name_with_ext)
+    logger.debug("full_file_path: {}".format(full_file_path))
 
     return file_url, file_url_for_html, full_file_path
 
@@ -58,6 +75,7 @@ def download_and_change_url_file(soup_object, main_url, files_dir_name, path, ta
     with open(path_for_file, open_mode) as handler:
         handler.write(object_data)
 
+    logger.debug("url_for_html: {}".format(url_for_html))
     soup_object[tag] = url_for_html
 
 
@@ -91,20 +109,32 @@ def download_and_change_url_file(soup_object, main_url, files_dir_name, path, ta
 #     return html_content
 
 
+def is_valid_for_downloading(domain, file_domain):
+    if domain == file_domain or file_domain == "":
+        return True
+    else:
+        return False
+
+
 def page_loader(url, path):  # noqa: C901
+    logger.info("Start page loader")
+    logger.debug("url: {}, path {}".format(url, path))
+
     domain = urlparse(url).netloc
     r = requests.get(url)
     soup = BeautifulSoup(r.text, "html.parser")
 
     files_dir_name = change_name(url) + "_files"
     files_dir = os.path.join(path, files_dir_name)
+    logger.info("Creating directory for files: {}".format(files_dir))
     os.mkdir(files_dir)
 
     images = soup.find_all('img')
     if len(images) > 0:
         for k in images:
             img_domain = urlparse(k["src"]).netloc
-            if domain == img_domain or img_domain == "":
+            if is_valid_for_downloading(domain, img_domain):
+                logger.info("Start downloading image: {}".format(k["src"]))
                 download_and_change_url_file(k, url, files_dir_name, path, "src", "wb")  # noqa: E501
 
     links = soup.find_all('link')
@@ -114,7 +144,8 @@ def page_loader(url, path):  # noqa: C901
                 continue
 
             link_domain = urlparse(link["href"]).netloc
-            if domain == link_domain or link_domain == "":
+            if is_valid_for_downloading(domain, link_domain):
+                logger.info("Start downloading link: {}".format(link["href"]))
                 download_and_change_url_file(link, url, files_dir_name, path, "href", "wb")  # noqa: E501
 
     scripts = soup.find_all('script')
@@ -125,10 +156,12 @@ def page_loader(url, path):  # noqa: C901
                 continue
 
             script_domain = urlparse(s["src"]).netloc
-            if domain == script_domain or script_domain == "":
+            if is_valid_for_downloading(domain, script_domain):
+                logger.info("Start downloading script: {}".format(s["src"]))
                 download_and_change_url_file(s, url, files_dir_name, path, "src", "wb")  # noqa: E501
 
     if len(os.listdir(files_dir)) == 0:
+        logger.info("Created directory is empty. Remove directory")
         os.rmdir(files_dir)
 
     output_file_name = change_name(url) + ".html"
@@ -138,5 +171,6 @@ def page_loader(url, path):  # noqa: C901
     with open(output_file, "w") as f:
         f.write(html_content)
 
+    logger.info("The download is finished.")
     print(output_file)
     return html_content

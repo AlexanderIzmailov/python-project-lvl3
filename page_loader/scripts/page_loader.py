@@ -1,6 +1,7 @@
-from page_loader import page_loader
+from page_loader import page_loader, logger
 import os
 import argparse
+
 
 parser = argparse.ArgumentParser(
     description='Downloading internet pages',
@@ -15,13 +16,22 @@ parser.add_argument(
     help='output dir (default: "/app")',
     metavar="",
     default=os.getcwd())
+parser.add_argument(
+    "-l", "--log_level",
+    help='set log level (default: "INFO")',
+    metavar="",
+    default="INFO")
 args = vars(parser.parse_args())
 
 url = args["url"]
 output_path = args["output"]
+log_level = args["log_level"]
 
 
 def main():
+    LOGLEVEL = os.environ.get('LOGLEVEL', log_level).upper()
+    logger.setLevel(LOGLEVEL)
+
     page_loader(url, output_path)
 
 
