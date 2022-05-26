@@ -134,7 +134,7 @@ def is_valid_for_downloading(domain, file_domain):
         return False
 
 
-def page_loader(url, path):  # noqa: C901
+def download(url, path):  # noqa: C901
     logger.info("Start page loader")
     logger.debug("url: {}, path {}".format(url, path))
 
