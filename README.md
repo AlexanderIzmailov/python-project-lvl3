@@ -14,3 +14,5 @@ asciinema for page-loader (images): https://asciinema.org/a/AojocLLTsY60lkvbfwrf
 asciinema for page-loader (links and scripts): https://asciinema.org/a/TzSJPuDNJ77mtV46be2w6aK4f
 
 asciinema for page-loader (logging): https://asciinema.org/a/kxHhBxHai6KGjRKzUTLERwRJl
+
+asciinema for page-loader (error 404): https://asciinema.org/a/NOpl3LBnthp3EHLlbXkqphp8M

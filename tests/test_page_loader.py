@@ -2,6 +2,8 @@ from page_loader.page_loader_logic import page_loader
 import requests_mock
 import tempfile
 import os
+import pytest
+import requests
 
 
 def test_page_loader():
@@ -68,3 +70,38 @@ def test_page_loader3():
             assert html_read == "html"
             assert script_read == "script2"
             assert result != correct
+
+
+def test_exceptions_connection():
+    with requests_mock.Mocker() as m:
+        correct = open("tests/fixtures/without_imgages.html").read()
+        m.get("http://test.com", text=correct, status_code=404)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with pytest.raises(SystemExit, match=r".*404.*"):
+                result = page_loader("http://test.com", tmpdir)
+
+
+def test_exception_chmod():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_dir = os.path.join(tmpdir, "test_dir")
+        os.mkdir(test_dir)
+        print(test_dir)
+        os.chmod(test_dir, 000)
+
+        with requests_mock.Mocker() as m:
+            correct = open("tests/fixtures/without_imgages.html").read()
+            m.get("http://test.com", text=correct)
+
+            with pytest.raises(SystemExit, match=r".*Permission.*"):
+                result = page_loader("http://test.com", test_dir)
+
+
+def test_exception_file_404(caplog):
+    with requests_mock.Mocker() as m:
+        correct = open("tests/fixtures/with_images.html").read()
+        m.get("https://with_images.ru", text=correct)
+        m.get("https://with_images.ru/test_jpg.jpg", text="image", status_code=404)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            result = page_loader("https://with_images.ru", tmpdir)
+            assert "404 Client Error: None for url: https://with_images.ru/test_jpg.jpg" in caplog.text

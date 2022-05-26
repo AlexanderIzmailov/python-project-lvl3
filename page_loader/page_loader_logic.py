@@ -70,13 +70,25 @@ def take_files_urls(file_url, domain, files_dir_name, files_dir_path):
 def download_and_change_url_file(soup_object, main_url, files_dir_name, path, tag, open_mode):   # noqa: E501
     file_url = soup_object[tag]
     url_for_download, url_for_html, path_for_file = take_files_urls(file_url, main_url, files_dir_name, path)  # noqa: E501
-    object_data = requests.get(url_for_download).content
 
-    with open(path_for_file, open_mode) as handler:
-        handler.write(object_data)
+    # object_data = requests.get(url_for_download).content
 
-    logger.debug("url_for_html: {}".format(url_for_html))
-    soup_object[tag] = url_for_html
+    try:
+        object_data = requests.get(url_for_download)
+        object_data.raise_for_status()
+    except requests.exceptions.ConnectionError as errc:
+        logger.error("Downloading file: {}. Connection error: {}".format(url_for_download, errc))  # noqa: E501
+        raise SystemExit(errc) from None
+    except requests.exceptions.RequestException as err:
+        logger.warning("Downloading file: {}. Error: {}".format(url_for_download, err))  # noqa: E501
+    else:
+        object_data = object_data.content
+
+        with open(path_for_file, open_mode) as handler:
+            handler.write(object_data)
+
+        logger.debug("url_for_html: {}".format(url_for_html))
+        soup_object[tag] = url_for_html
 
 
 # def page_loader(url, path):
@@ -120,14 +132,31 @@ def page_loader(url, path):  # noqa: C901
     logger.info("Start page loader")
     logger.debug("url: {}, path {}".format(url, path))
 
-    domain = urlparse(url).netloc
-    r = requests.get(url)
+    try:
+        r = requests.get(url)
+        r.raise_for_status()
+    except requests.exceptions.ConnectionError as errc:
+        logger.error("Connection error: {}".format(errc))
+        raise SystemExit(errc) from None
+    except requests.exceptions.HTTPError as errh:
+        logger.error("HTTP error: {}".format(errh))
+        raise SystemExit(errh) from None
+    except requests.exceptions.RequestException as err:
+        logger.error("Network error: {}".format(err))
+        raise SystemExit(err) from None
+
     soup = BeautifulSoup(r.text, "html.parser")
+    domain = urlparse(url).netloc
 
     files_dir_name = change_name(url) + "_files"
     files_dir = os.path.join(path, files_dir_name)
     logger.info("Creating directory for files: {}".format(files_dir))
-    os.mkdir(files_dir)
+
+    try:
+        os.mkdir(files_dir)
+    except PermissionError as err:
+        logger.error("Permission error: {}".format(err))
+        raise SystemExit(err) from None
 
     images = soup.find_all('img')
     if len(images) > 0:
