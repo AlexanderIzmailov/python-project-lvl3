@@ -1,4 +1,4 @@
-from page_loader.page_loader_logic import page_loader
+from page_loader.page_loader_logic import download
 import requests_mock
 import tempfile
 import os
@@ -6,12 +6,12 @@ import pytest
 import requests
 
 
-def test_page_loader():
+def test_download():
     with requests_mock.Mocker() as m:
         correct = open("tests/fixtures/without_imgages.html").read()
         m.get("http://test.com", text=correct)
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = page_loader("http://test.com", tmpdir)
+            result = download("http://test.com", tmpdir)
             assert result == correct
 
 
@@ -29,21 +29,21 @@ def test_page_loader():
 #             assert result != correct
 
 
-def test_page_loader2():
+def test_download2():
     with requests_mock.Mocker() as m:
         correct = open("tests/fixtures/with_images.html").read()
         m.get("https://with_images.ru", text=correct)
         m.get("https://with_images.ru/test_jpg.jpg", text="image")
         
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = page_loader("https://with_images.ru", tmpdir)
+            result = download("https://with_images.ru", tmpdir)
             image = os.path.join(tmpdir, "with-images-ru_files", "with-images-ru-test-jpg.jpg")
             read_image = open(image).read()
             assert read_image == "image"
             assert result != correct
 
 
-def test_page_loader3():
+def test_download3():
     with requests_mock.Mocker() as m:
         correct = open("tests/fixtures/link_script_test.html").read()
         m.get("https://link_script_test.ru", text=correct)
@@ -56,7 +56,7 @@ def test_page_loader3():
         m.get("https://link_script_test.ru/packs/js/runtime.js", text="script2")
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = page_loader("https://link_script_test.ru", tmpdir)
+            result = download("https://link_script_test.ru", tmpdir)
             
             css = os.path.join(tmpdir, "link-script-test-ru_files", "link-script-test-ru-assets-application.css")
             html = os.path.join(tmpdir, "link-script-test-ru_files", "link-script-test-ru-courses.html")
@@ -78,7 +78,7 @@ def test_exceptions_connection():
         m.get("http://test.com", text=correct, status_code=404)
         with tempfile.TemporaryDirectory() as tmpdir:
             with pytest.raises(SystemExit, match=r".*404.*"):
-                result = page_loader("http://test.com", tmpdir)
+                result = download("http://test.com", tmpdir)
 
 
 def test_exception_chmod():
@@ -93,7 +93,7 @@ def test_exception_chmod():
             m.get("http://test.com", text=correct)
 
             with pytest.raises(SystemExit, match=r".*Permission.*"):
-                result = page_loader("http://test.com", test_dir)
+                result = download("http://test.com", test_dir)
 
 
 def test_exception_file_404(caplog):
@@ -103,5 +103,5 @@ def test_exception_file_404(caplog):
         m.get("https://with_images.ru/test_jpg.jpg", text="image", status_code=404)
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = page_loader("https://with_images.ru", tmpdir)
+            result = download("https://with_images.ru", tmpdir)
             assert "404 Client Error: None for url: https://with_images.ru/test_jpg.jpg" in caplog.text
