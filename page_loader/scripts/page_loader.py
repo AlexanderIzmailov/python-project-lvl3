@@ -1,4 +1,4 @@
-from page_loader import page_loader, logger
+from page_loader import download, logger
 import os
 import argparse
 
@@ -32,7 +32,7 @@ def main():
     LOGLEVEL = os.environ.get('LOGLEVEL', log_level).upper()
     logger.setLevel(LOGLEVEL)
 
-    page_loader(url, output_path)
+    download(url, output_path)
 
 
 if __name__ == '__main__':
