@@ -3,6 +3,7 @@ import os
 import requests
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
+from progress.bar import Bar
 
 import logging
 
@@ -82,6 +83,10 @@ def download_and_change_url_file(soup_object, main_url, files_dir_name, path, ta
     except requests.exceptions.RequestException as err:
         logger.warning("Downloading file: {}. Error: {}".format(url_for_download, err))  # noqa: E501
     else:
+
+        bar = Bar(soup_object[tag], max=1)
+        bar.next()
+
         object_data = object_data.content
 
         with open(path_for_file, open_mode) as handler:
@@ -89,6 +94,7 @@ def download_and_change_url_file(soup_object, main_url, files_dir_name, path, ta
 
         logger.debug("url_for_html: {}".format(url_for_html))
         soup_object[tag] = url_for_html
+        bar.finish()
 
 
 # def page_loader(url, path):
@@ -163,7 +169,7 @@ def page_loader(url, path):  # noqa: C901
         for k in images:
             img_domain = urlparse(k["src"]).netloc
             if is_valid_for_downloading(domain, img_domain):
-                logger.info("Start downloading image: {}".format(k["src"]))
+                logger.debug("Start downloading image: {}".format(k["src"]))
                 download_and_change_url_file(k, url, files_dir_name, path, "src", "wb")  # noqa: E501
 
     links = soup.find_all('link')
@@ -174,7 +180,7 @@ def page_loader(url, path):  # noqa: C901
 
             link_domain = urlparse(link["href"]).netloc
             if is_valid_for_downloading(domain, link_domain):
-                logger.info("Start downloading link: {}".format(link["href"]))
+                logger.debug("Start downloading link: {}".format(link["href"]))
                 download_and_change_url_file(link, url, files_dir_name, path, "href", "wb")  # noqa: E501
 
     scripts = soup.find_all('script')
@@ -186,7 +192,7 @@ def page_loader(url, path):  # noqa: C901
 
             script_domain = urlparse(s["src"]).netloc
             if is_valid_for_downloading(domain, script_domain):
-                logger.info("Start downloading script: {}".format(s["src"]))
+                logger.debug("Start downloading script: {}".format(s["src"]))
                 download_and_change_url_file(s, url, files_dir_name, path, "src", "wb")  # noqa: E501
 
     if len(os.listdir(files_dir)) == 0:

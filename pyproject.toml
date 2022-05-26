@@ -11,6 +11,7 @@ packages = [
 python = "^3.8"
 requests = "^2.27.1"
 beautifulsoup4 = "^4.11.1"
+progress = "^1.6"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = "^3.0.0"
