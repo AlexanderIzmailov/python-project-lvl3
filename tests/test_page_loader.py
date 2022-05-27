@@ -72,12 +72,21 @@ def test_download3():
             assert result != correct
 
 
+# def test_exceptions_connection():
+#     with requests_mock.Mocker() as m:
+#         correct = open("tests/fixtures/without_imgages.html").read()
+#         m.get("http://test.com", text=correct, status_code=404)
+#         with tempfile.TemporaryDirectory() as tmpdir:
+#             with pytest.raises(SystemExit, match=r".*404.*"):
+#                 result = download("http://test.com", tmpdir)
+
+
 def test_exceptions_connection():
     with requests_mock.Mocker() as m:
         correct = open("tests/fixtures/without_imgages.html").read()
         m.get("http://test.com", text=correct, status_code=404)
         with tempfile.TemporaryDirectory() as tmpdir:
-            with pytest.raises(SystemExit, match=r".*404.*"):
+            with pytest.raises(requests.exceptions.HTTPError):
                 result = download("http://test.com", tmpdir)
 
 

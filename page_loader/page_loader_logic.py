@@ -146,7 +146,7 @@ def download(url, path):  # noqa: C901
         raise SystemExit(errc) from None
     except requests.exceptions.HTTPError as errh:
         logger.error("HTTP error: {}".format(errh))
-        raise SystemExit(errh) from None
+        raise
     except requests.exceptions.RequestException as err:
         logger.error("Network error: {}".format(err))
         raise SystemExit(err) from None
