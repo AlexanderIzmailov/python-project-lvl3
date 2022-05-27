@@ -143,9 +143,11 @@ def download(url, path):  # noqa: C901
         r.raise_for_status()
     except requests.exceptions.ConnectionError as errc:
         logger.error("Connection error: {}".format(errc))
-        raise SystemExit(errc) from None
+        # raise SystemExit(errc) from None
+        raise
     except requests.exceptions.HTTPError as errh:
         logger.error("HTTP error: {}".format(errh))
+        # raise SystemExit(errh) from None
         raise
     except requests.exceptions.RequestException as err:
         logger.error("Network error: {}".format(err))
