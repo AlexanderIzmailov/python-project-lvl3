@@ -12,7 +12,9 @@ def test_download():
         m.get("http://test.com", text=correct)
         with tempfile.TemporaryDirectory() as tmpdir:
             result = download("http://test.com", tmpdir)
-            assert result == correct
+            correct_data = open(os.path.join(tmpdir, "test-com.html")).read()
+            # assert result == correct
+            assert correct == correct_data
 
 
 # def test_page_loader2():

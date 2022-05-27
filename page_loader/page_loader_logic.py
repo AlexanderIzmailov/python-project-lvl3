@@ -210,4 +210,5 @@ def download(url, path):  # noqa: C901
 
     logger.info("The download is finished.")
     print(output_file)
-    return html_content
+    # return html_content
+    return output_file
