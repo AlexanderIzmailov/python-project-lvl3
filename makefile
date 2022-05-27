@@ -14,7 +14,7 @@ package-install:
 	python3 -m pip install --user dist/*.whl
 
 lint:
-	poetry run flake8 page_loader
+	poetry run flake8 page_loader tests
 
 test:
 	poetry run pytest

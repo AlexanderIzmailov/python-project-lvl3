@@ -11,7 +11,8 @@ def test_download():
         correct = open("tests/fixtures/without_imgages.html").read()
         m.get("http://test.com", text=correct)
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = download("http://test.com", tmpdir)
+            # result = download("http://test.com", tmpdir)
+            download("http://test.com", tmpdir)
             correct_data = open(os.path.join(tmpdir, "test-com.html")).read()
             # assert result == correct
             assert correct == correct_data
@@ -22,7 +23,7 @@ def test_download():
 #         correct = open("tests/fixtures/with_images.html").read()
 #         m.get("https://with_images.ru", text=correct)
 #         m.get("https://with_images.ru/test_jpg.jpg", text="image")
-        
+
 #         with tempfile.TemporaryDirectory() as tmpdir:
 #             result = page_loader("https://with_images.ru", tmpdir)
 #             image = os.path.join(tmpdir, "with_images-ru_files", "with_images-ru-test_jpg.jpg")
@@ -36,7 +37,7 @@ def test_download2():
         correct = open("tests/fixtures/with_images.html").read()
         m.get("https://with_images.ru", text=correct)
         m.get("https://with_images.ru/test_jpg.jpg", text="image")
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             result = download("https://with_images.ru", tmpdir)
             image = os.path.join(tmpdir, "with-images-ru_files", "with-images-ru-test-jpg.jpg")
@@ -59,7 +60,7 @@ def test_download3():
 
         with tempfile.TemporaryDirectory() as tmpdir:
             result = download("https://link_script_test.ru", tmpdir)
-            
+
             css = os.path.join(tmpdir, "link-script-test-ru_files", "link-script-test-ru-assets-application.css")
             html = os.path.join(tmpdir, "link-script-test-ru_files", "link-script-test-ru-courses.html")
             script = os.path.join(tmpdir, "link-script-test-ru_files", "link-script-test-ru-packs-js-runtime.js")
@@ -89,7 +90,7 @@ def test_exceptions_connection():
         m.get("http://test.com", text=correct, status_code=404)
         with tempfile.TemporaryDirectory() as tmpdir:
             with pytest.raises(requests.exceptions.HTTPError):
-                result = download("http://test.com", tmpdir)
+                download("http://test.com", tmpdir)
 
 
 def test_exception_chmod():
@@ -104,7 +105,7 @@ def test_exception_chmod():
             m.get("http://test.com", text=correct)
 
             with pytest.raises(SystemExit, match=r".*Permission.*"):
-                result = download("http://test.com", test_dir)
+                download("http://test.com", test_dir)
 
 
 def test_exception_file_404(caplog):
@@ -114,5 +115,5 @@ def test_exception_file_404(caplog):
         m.get("https://with_images.ru/test_jpg.jpg", text="image", status_code=404)
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = download("https://with_images.ru", tmpdir)
+            download("https://with_images.ru", tmpdir)
             assert "404 Client Error: None for url: https://with_images.ru/test_jpg.jpg" in caplog.text
