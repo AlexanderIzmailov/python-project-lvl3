@@ -3,7 +3,7 @@ import requests_mock
 import tempfile
 import os
 import pytest
-import requests
+# import requests
 
 
 def test_download():
