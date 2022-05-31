@@ -1,6 +1,7 @@
-from page_loader import download, logger
+from page_loader import download, logger, KnownError
 import os
 import argparse
+import sys
 
 
 parser = argparse.ArgumentParser(
@@ -32,8 +33,10 @@ def main():
     LOGLEVEL = os.environ.get('LOGLEVEL', log_level).upper()
     logger.setLevel(LOGLEVEL)
 
-    download(url, output_path)
-
+    try:
+        download(url, output_path)
+    except KnownError:
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

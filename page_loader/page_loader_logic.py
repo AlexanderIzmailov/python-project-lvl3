@@ -4,7 +4,6 @@ import requests
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from progress.bar import Bar
-import sys
 
 import logging
 
@@ -16,6 +15,10 @@ sh = logging.StreamHandler()
 sh.setFormatter(f)
 
 logger.addHandler(sh)
+
+
+class KnownError(Exception):
+    pass
 
 
 def change_name(url):
@@ -80,7 +83,7 @@ def download_and_change_url_file(soup_object, main_url, files_dir_name, path, ta
         object_data.raise_for_status()
     except requests.exceptions.ConnectionError as errc:
         logger.error("Downloading file: {}. Connection error: {}".format(url_for_download, errc))  # noqa: E501
-        sys.exit(1)
+        raise KnownError() from errc
     except requests.exceptions.RequestException as err:
         logger.warning("Downloading file: {}. Error: {}".format(url_for_download, err))  # noqa: E501
     else:
@@ -135,31 +138,24 @@ def is_valid_for_downloading(domain, file_domain):
         return False
 
 
-class KnownError(Exception):
-    pass
-
-
 def download(url, path):  # noqa: C901
     logger.info("Start page loader")
     logger.debug("url: {}, path {}".format(url, path))
 
     try:
-        try:
-            r = requests.get(url)
-            r.raise_for_status()
-        except requests.exceptions.ConnectionError as errc:
-            logger.error("Connection error: {}".format(errc))
-            # raise SystemExit(errc) from None
-            raise KnownError()
-        except requests.exceptions.HTTPError as errh:
-            logger.error("HTTP error: {}".format(errh))
-            # raise SystemExit(errh) from None
-            raise KnownError()
-        except requests.exceptions.RequestException as err:
-            logger.error("Network error: {}".format(err))
-            raise KnownError()
-    except KnownError:
-        sys.exit(1)
+        r = requests.get(url)
+        r.raise_for_status()
+    except requests.exceptions.ConnectionError as errc:
+        logger.error("Connection error: {}".format(errc))
+        # raise SystemExit(errc) from None
+        raise KnownError() from errc
+    except requests.exceptions.HTTPError as errh:
+        logger.error("HTTP error: {}".format(errh))
+        # raise SystemExit(errh) from None
+        raise KnownError() from errh
+    # except requests.exceptions.RequestException as err:
+    #     logger.error("Network error: {}".format(err))
+    #     raise SystemExit(err) from None
 
     soup = BeautifulSoup(r.text, "html.parser")
     domain = urlparse(url).netloc

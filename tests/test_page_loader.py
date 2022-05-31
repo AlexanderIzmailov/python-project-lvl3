@@ -1,9 +1,9 @@
-from page_loader.page_loader_logic import download
+from page_loader.page_loader_logic import download, KnownError
 import requests_mock
 import tempfile
 import os
 import pytest
-# import requests
+import requests
 
 
 def test_download():
@@ -89,7 +89,7 @@ def test_exceptions_connection():
         correct = open("tests/fixtures/without_imgages.html").read()
         m.get("http://test.com", text=correct, status_code=404)
         with tempfile.TemporaryDirectory() as tmpdir:
-            with pytest.raises(SystemExit):
+            with pytest.raises(KnownError):
                 download("http://test.com", tmpdir)
 
 
