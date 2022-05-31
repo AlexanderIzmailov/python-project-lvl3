@@ -135,23 +135,30 @@ def is_valid_for_downloading(domain, file_domain):
         return False
 
 
+class KnownError(Exception):
+    pass
+
+
 def download(url, path):  # noqa: C901
     logger.info("Start page loader")
     logger.debug("url: {}, path {}".format(url, path))
 
     try:
-        r = requests.get(url)
-        r.raise_for_status()
-    except requests.exceptions.ConnectionError as errc:
-        logger.error("Connection error: {}".format(errc))
-        # raise SystemExit(errc) from None
-        sys.exit(1)
-    except requests.exceptions.HTTPError as errh:
-        logger.error("HTTP error: {}".format(errh))
-        # raise SystemExit(errh) from None
-        sys.exit(1)
-    except requests.exceptions.RequestException as err:
-        logger.error("Network error: {}".format(err))
+        try:
+            r = requests.get(url)
+            r.raise_for_status()
+        except requests.exceptions.ConnectionError as errc:
+            logger.error("Connection error: {}".format(errc))
+            # raise SystemExit(errc) from None
+            raise KnownError()
+        except requests.exceptions.HTTPError as errh:
+            logger.error("HTTP error: {}".format(errh))
+            # raise SystemExit(errh) from None
+            raise KnownError()
+        except requests.exceptions.RequestException as err:
+            logger.error("Network error: {}".format(err))
+            raise KnownError()
+    except KnownError:
         sys.exit(1)
 
     soup = BeautifulSoup(r.text, "html.parser")
