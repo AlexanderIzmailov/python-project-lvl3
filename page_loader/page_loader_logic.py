@@ -142,16 +142,16 @@ def download(url, path):  # noqa: C901
         r = requests.get(url)
         r.raise_for_status()
     except requests.exceptions.ConnectionError as errc:
-        logger.error("Connection error: {}".format(str(errc)))
+        logger.error("Connection error: {}".format(errc))
         # raise SystemExit(errc) from None
-        raise SystemExit(1)
+        SystemExit(1)
     except requests.exceptions.HTTPError as errh:
-        logger.error("HTTP error: {}".format(str(errh)))
+        logger.error("HTTP error: {}".format(errh))
         # raise SystemExit(errh) from None
-        raise SystemExit(1)
+        SystemExit(1)
     except requests.exceptions.RequestException as err:
-        logger.error("Network error: {}".format(str(err)))
-        raise SystemExit(1)
+        logger.error("Network error: {}".format(err))
+        SystemExit(1)
 
     soup = BeautifulSoup(r.text, "html.parser")
     domain = urlparse(url).netloc
