@@ -80,7 +80,7 @@ def download_and_change_url_file(soup_object, main_url, files_dir_name, path, ta
         object_data.raise_for_status()
     except requests.exceptions.ConnectionError as errc:
         logger.error("Downloading file: {}. Connection error: {}".format(url_for_download, errc))  # noqa: E501
-        raise SystemExit(errc) from None
+        sys.exit(1)
     except requests.exceptions.RequestException as err:
         logger.warning("Downloading file: {}. Error: {}".format(url_for_download, err))  # noqa: E501
     else:
