@@ -4,6 +4,7 @@ import requests
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from progress.bar import Bar
+import sys
 
 import logging
 
@@ -144,14 +145,14 @@ def download(url, path):  # noqa: C901
     except requests.exceptions.ConnectionError as errc:
         logger.error("Connection error: {}".format(errc))
         # raise SystemExit(errc) from None
-        SystemExit(1)
+        sys.exit(1)
     except requests.exceptions.HTTPError as errh:
         logger.error("HTTP error: {}".format(errh))
         # raise SystemExit(errh) from None
-        SystemExit(1)
+        sys.exit(1)
     except requests.exceptions.RequestException as err:
         logger.error("Network error: {}".format(err))
-        SystemExit(1)
+        sys.exit(1)
 
     soup = BeautifulSoup(r.text, "html.parser")
     domain = urlparse(url).netloc
