@@ -89,7 +89,7 @@ def test_exceptions_connection():
         correct = open("tests/fixtures/without_imgages.html").read()
         m.get("http://test.com", text=correct, status_code=404)
         with tempfile.TemporaryDirectory() as tmpdir:
-            with pytest.raises(requests.exceptions.HTTPError):
+            with pytest.raises(SystemExit):
                 download("http://test.com", tmpdir)
 
 
